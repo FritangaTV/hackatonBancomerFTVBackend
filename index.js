@@ -76,20 +76,46 @@ app.get('/t', function(req, res){
     			};
     			
     		});
-    		var areaQuery = "SELECT SUM(im_txn) AS money_total, SUM(to_txn) AS trans_count, SUM(to_ctes) AS clients, SUM(to_tarjetas) AS cards, `date` FROM transactions t WHERE cd_postal_cmr = ? AND (`date` BETWEEN '20015-12-01' AND '2016-03-01') GROUP BY date;";
+    		var areaQuery = "SELECT SUM(t.im_txn) AS money_total, SUM(t.to_txn) AS trans_count, SUM(t.to_ctes) AS clients, SUM(t.to_tarjetas) AS cards, t.date, w.* FROM transactions t INNER JOIN (SELECT * FROM weather) w ON t.date = w.date WHERE cd_postal_cmr = '06700' AND (t.date BETWEEN '20015-12-01' AND '2016-03-01') GROUP BY t.date;";
 
     		connection.query(areaQuery,[client_cp],function(err, areaRows){
     			
     			areaRows.forEach(function(areaRow){
     				var proccesedDate = moment(areaRow.date).format('YYYY-MM-DD');
-    				if ( typeof sendResults[proccesedDate] != "undefined" ){
-    					sendResults[proccesedDate].area = {
-	    					"money_total": areaRow.money_total,
-							"trans_count": areaRow.trans_count,
-							"clients": areaRow.clients,
-							"cards": areaRow.cards
-						};
+    				if ( typeof sendResults[proccesedDate] == "undefined" ){
+    					sendResults[proccesedDate] = {
+    						"weather": {
+		    					"min_temp": areaRow.min_t,
+		    					"max_temp": areaRow.max_t,
+		    					"mean_temp": areaRow.mid_t,
+		    					"dew_point" : areaRow.dew,
+								"mean_dew" : areaRow.m_dew,
+								"min_dew" : areaRow.min_dew,
+								"max_hum" : areaRow.max_hum,
+								"mean_hum" : areaRow.m_hum,
+								"min_hum" : areaRow.min_hum,
+								"max_pressure" : areaRow.max_pre,
+								"mean_pressure" : areaRow.m_pre,
+								"min_pressure" : areaRow.min_pre,
+								"max_pressure" : areaRow.max_vis,
+								"mean_visibility" : areaRow.m_vis,
+								"min_visibility" : areaRow.min_vis,
+								"max_speed" : areaRow.max_vel,
+								"mean_speed" : areaRow.m_vel,
+								"min_speed" : areaRow.min_vel,
+								"max_blow" : areaRow.max_raf,
+								"prec" : areaRow.pre,
+								"clouds" : areaRow.cloud_cover,
+								"event" : areaRow.event
+		    				}
+    					};
     				};
+    				sendResults[proccesedDate].area = {
+    					"money_total": areaRow.money_total,
+						"trans_count": areaRow.trans_count,
+						"clients": areaRow.clients,
+						"cards": areaRow.cards
+					};
     			});
     			res.json(sendResults);
     			connection.release();
