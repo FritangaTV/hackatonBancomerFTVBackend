@@ -10,8 +10,17 @@ var pool  	= mysql.createPool({
   database        : 'food_data'
 });
 
+app.use(express.static('public'));
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
+
 app.get('/', function (req, res) {
-	res.send('Hello World!');
+	res.sendFile('index.html');
 });
 
 app.get('/a', function(req,res){
@@ -24,15 +33,18 @@ app.get('/a', function(req,res){
 });
 
 app.get('/t', function(req, res){
+	if ( typeof req.query.client == "undefined" || typeof req.query.endDate == "undefined" || typeof req.query.initDate == "undefined" ){
+		res.status(500).send('Not enough minerals');
+		return;
+	};
+
+	var client_id = req.query.client;
+	var initDate = req.query.initDate;
+	var endDate = req.query.endDate;
+
 	var doQuery = "SELECT SUM(t.im_txn) AS money_total, SUM(t.to_txn) AS trans_count, SUM(t.to_ctes) AS clients, SUM(t.to_tarjetas) AS cards, t.date, t.cd_postal_cmr AS cd_postal_cmr, w.*, a.promedio AS anivs FROM transactions t INNER JOIN (SELECT * FROM weather) w ON t.date = w.date INNER JOIN (SELECT * FROM aniversarios) a ON t.date = a.dia WHERE t.id_afil = ? AND (t.`date` BETWEEN ? AND ?) GROUP BY t.date, w.date;";
 	var queryResults;
 	var sendResults = {};
-	//var client_id = 6992;
-	var client_id = req.query.client;
-	//var initDate = '2015-12-01';
-	//var endDate = '2016-03-01';
-	var initDate = req.query.initDate;
-	var endDate = req.query.endDate;
 	pool.getConnection(function(err, connection) {
   	connection.query( doQuery,[client_id, initDate, endDate], function(err, rows) {
   			queryResults = rows;
@@ -75,10 +87,10 @@ app.get('/t', function(req, res){
     			};
     			
     		});
-    		var areaQuery = "SELECT SUM(t.im_txn) AS money_total, SUM(t.to_txn) AS trans_count, SUM(t.to_ctes) AS clients, SUM(t.to_tarjetas) AS cards, t.date, w.*, a.promedio AS anivs FROM transactions t INNER JOIN (SELECT * FROM weather) w ON t.date = w.date INNER JOIN (SELECT * FROM aniversarios) a ON t.date = a.dia WHERE cd_postal_cmr = '06700' AND (t.date BETWEEN ? AND ?) GROUP BY t.date;";
+    		var areaQuery = "SELECT SUM(t.im_txn) AS money_total, SUM(t.to_txn) AS trans_count, SUM(t.to_ctes) AS clients, SUM(t.to_tarjetas) AS cards, t.date, w.*, a.promedio AS anivs FROM transactions t INNER JOIN (SELECT * FROM weather) w ON t.date = w.date INNER JOIN (SELECT * FROM aniversarios) a ON t.date = a.dia WHERE cd_postal_cmr = ? AND (t.date BETWEEN ? AND ?) GROUP BY t.date;";
 
     		connection.query(areaQuery,[client_cp, initDate, endDate],function(err, areaRows){
-    			
+    			console.log('adding area', areaRows.length);
     			areaRows.forEach(function(areaRow){
     				var proccesedDate = moment(areaRow.date).format('YYYY-MM-DD');
     				var metaDate = moment(areaRow.date);
@@ -118,7 +130,8 @@ app.get('/t', function(req, res){
 						"cards": areaRow.cards
 					};
     			});
-    			connection.query('SELECT w.*, a.promedio AS anivs FROM weather w INNER JOIN (SELECT promedio,dia FROM aniversarios) a ON w.date = a.dia WHERE (w.date BETWEEN ? AND ?);', [initDate, endDate], function(err, dateRows){
+    			var finalDate = moment(endDate).add(7, 'days').format('YYYY-MM-DD');
+    			connection.query('SELECT w.*, a.promedio AS anivs FROM weather w INNER JOIN (SELECT promedio,dia FROM aniversarios) a ON w.date = a.dia WHERE (w.date BETWEEN ? AND ?);', [initDate, finalDate], function(err, dateRows){
     				dateRows.forEach(function(dateRow){
     					var proccesedDate = moment(dateRow.date).format('YYYY-MM-DD');
     					var metaDate = moment(dateRow.date);
@@ -160,7 +173,7 @@ app.get('/t', function(req, res){
 	});
 });
 
-app.listen(3000, function () {
+app.listen(1337, function () {
 	console.log('DATA API RUNNING');
 });
 
