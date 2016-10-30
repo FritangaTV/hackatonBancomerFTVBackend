@@ -24,25 +24,24 @@ app.get('/a', function(req,res){
 });
 
 app.get('/t', function(req, res){
-	var doQuery = "SELECT SUM(t.im_txn) AS money_total, SUM(t.to_txn) AS trans_count, SUM(t.to_ctes) AS clients, SUM(t.to_tarjetas) AS cards, t.date, t.cd_postal_cmr AS cd_postal_cmr, w.*, a.promedio AS anivs FROM transactions t INNER JOIN (SELECT * FROM weather) w ON t.date = w.date INNER JOIN (SELECT * FROM aniversarios) a ON t.date = a.dia WHERE t.id_afil = ? AND (t.`date` BETWEEN '20015-12-01' AND '2016-03-01') GROUP BY t.date, w.date;";
+	var doQuery = "SELECT SUM(t.im_txn) AS money_total, SUM(t.to_txn) AS trans_count, SUM(t.to_ctes) AS clients, SUM(t.to_tarjetas) AS cards, t.date, t.cd_postal_cmr AS cd_postal_cmr, w.*, a.promedio AS anivs FROM transactions t INNER JOIN (SELECT * FROM weather) w ON t.date = w.date INNER JOIN (SELECT * FROM aniversarios) a ON t.date = a.dia WHERE t.id_afil = ? AND (t.`date` BETWEEN ? AND ?) GROUP BY t.date, w.date;";
 	var queryResults;
 	var sendResults = {};
 	//var client_id = 6992;
 	var client_id = req.query.client;
+	//var initDate = '2015-12-01';
+	//var endDate = '2016-03-01';
+	var initDate = req.query.initDate;
+	var endDate = req.query.endDate;
 	pool.getConnection(function(err, connection) {
-  	connection.query( doQuery,[client_id], function(err, rows) {
+  	connection.query( doQuery,[client_id, initDate, endDate], function(err, rows) {
   			queryResults = rows;
   			var client_cp = rows[0].cd_postal_cmr;
     		queryResults.forEach(function(row){
     			var proccesedDate = moment(row.date).format('YYYY-MM-DD');
     			var metaDate = moment(row.date);
     			sendResults[proccesedDate] = {
-    				"meta":{
-    					"day_num": metaDate.format('DD'),
-    					"weekday": metaDate.format('dddd'),
-    					"feriado": isFeriado(metaDate.format('YYYY-MM-DD') ),
-    					"aniversarios": row.anivs
-    				},
+    				"meta": getMeta(metaDate, row.anivs),
     				"transactions": {
     					"money_total": row.money_total,
     					"trans_count": row.trans_count,
@@ -76,14 +75,16 @@ app.get('/t', function(req, res){
     			};
     			
     		});
-    		var areaQuery = "SELECT SUM(t.im_txn) AS money_total, SUM(t.to_txn) AS trans_count, SUM(t.to_ctes) AS clients, SUM(t.to_tarjetas) AS cards, t.date, w.* FROM transactions t INNER JOIN (SELECT * FROM weather) w ON t.date = w.date WHERE cd_postal_cmr = '06700' AND (t.date BETWEEN '20015-12-01' AND '2016-03-01') GROUP BY t.date;";
+    		var areaQuery = "SELECT SUM(t.im_txn) AS money_total, SUM(t.to_txn) AS trans_count, SUM(t.to_ctes) AS clients, SUM(t.to_tarjetas) AS cards, t.date, w.*, a.promedio AS anivs FROM transactions t INNER JOIN (SELECT * FROM weather) w ON t.date = w.date INNER JOIN (SELECT * FROM aniversarios) a ON t.date = a.dia WHERE cd_postal_cmr = '06700' AND (t.date BETWEEN ? AND ?) GROUP BY t.date;";
 
-    		connection.query(areaQuery,[client_cp],function(err, areaRows){
+    		connection.query(areaQuery,[client_cp, initDate, endDate],function(err, areaRows){
     			
     			areaRows.forEach(function(areaRow){
     				var proccesedDate = moment(areaRow.date).format('YYYY-MM-DD');
+    				var metaDate = moment(areaRow.date);
     				if ( typeof sendResults[proccesedDate] == "undefined" ){
     					sendResults[proccesedDate] = {
+    						"meta": getMeta(metaDate, areaRow.anivs),
     						"weather": {
 		    					"min_temp": areaRow.min_t,
 		    					"max_temp": areaRow.max_t,
@@ -117,8 +118,43 @@ app.get('/t', function(req, res){
 						"cards": areaRow.cards
 					};
     			});
-    			res.json(sendResults);
-    			connection.release();
+    			connection.query('SELECT w.*, a.promedio AS anivs FROM weather w INNER JOIN (SELECT promedio,dia FROM aniversarios) a ON w.date = a.dia WHERE (w.date BETWEEN ? AND ?);', [initDate, endDate], function(err, dateRows){
+    				dateRows.forEach(function(dateRow){
+    					var proccesedDate = moment(dateRow.date).format('YYYY-MM-DD');
+    					var metaDate = moment(dateRow.date);
+    					if ( typeof sendResults[proccesedDate] == "undefined"  ){
+    						sendResults[proccesedDate] = {
+    							"meta": getMeta(metaDate, dateRow.anivs),
+    							"weather": {
+			    					"min_temp": dateRow.min_t,
+			    					"max_temp": dateRow.max_t,
+			    					"mean_temp": dateRow.mid_t,
+			    					"dew_point" : dateRow.dew,
+									"mean_dew" : dateRow.m_dew,
+									"min_dew" : dateRow.min_dew,
+									"max_hum" : dateRow.max_hum,
+									"mean_hum" : dateRow.m_hum,
+									"min_hum" : dateRow.min_hum,
+									"max_pressure" : dateRow.max_pre,
+									"mean_pressure" : dateRow.m_pre,
+									"min_pressure" : dateRow.min_pre,
+									"max_pressure" : dateRow.max_vis,
+									"mean_visibility" : dateRow.m_vis,
+									"min_visibility" : dateRow.min_vis,
+									"max_speed" : dateRow.max_vel,
+									"mean_speed" : dateRow.m_vel,
+									"min_speed" : dateRow.min_vel,
+									"max_blow" : dateRow.max_raf,
+									"prec" : dateRow.pre,
+									"clouds" : dateRow.cloud_cover,
+									"event" : dateRow.event
+			    				}
+	    					};
+    					}
+    				});
+    				res.json(sendResults);
+    				connection.release();
+    			});
     		});
   		});
 	});
@@ -170,4 +206,14 @@ function isFeriado(check){
 		result = "no";
 	};
 	return result;
+}
+
+function getMeta(metaDate, anivs){
+	var metaData = {
+		"day_num": metaDate.format('DD'),
+		"weekday": metaDate.format('dddd'),
+		"feriado": isFeriado(metaDate.format('YYYY-MM-DD') ),
+		"aniversarios": anivs
+	}
+	return metaData;
 }
