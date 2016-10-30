@@ -178,6 +178,7 @@ app.listen(1337, function () {
 });
 
 function isFeriado(check){
+
 	var result;
 	var feriados = ["2016-01-01",
 		"2016-02-05",
@@ -213,7 +214,9 @@ function isFeriado(check){
 		"2016-12-16",
 		"2016-12-24",
 		"2016-12-31"];
-	if ( feriados.indexOf(check)< -1 ){
+	console.log("feriado check", feriados.indexOf(check) );
+	if ( feriados.indexOf(check)> -1 ){
+		console.log("feriado!!!!");
 		result = "yes";
 	} else {
 		result = "no";
