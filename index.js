@@ -2,12 +2,13 @@ var express = require('express');
 var app 	= express();
 var mysql 	= require('mysql');
 var moment 	= require('moment');
+var config 	= require('config.json');
 var pool  	= mysql.createPool({
   connectionLimit : 10,
-  host            : '127.0.01',
-  user            : 'root',
-  password        : '',
-  database        : 'food_data'
+  host            : config.dbHost,
+  user            : config.dbUser,
+  password        : config.dbPass,
+  database        : config.dbName
 });
 
 app.use(express.static('public'));
