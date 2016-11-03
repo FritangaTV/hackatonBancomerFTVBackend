@@ -2,7 +2,7 @@ var express = require('express');
 var app 	= express();
 var mysql 	= require('mysql');
 var moment 	= require('moment');
-var config 	= require('config.json');
+var config 	= require('./config.json');
 var pool  	= mysql.createPool({
   connectionLimit : 10,
   host            : config.dbHost,
