@@ -177,75 +177,96 @@ app.listen(1337, function () {
 	console.log('DATA API RUNNING');
 });
 
-function isFeriado(check){
 
-	var result;
-	var feriados = ["2016-01-01",
-		"2016-02-05",
-		"2016-03-21",
-		"2016-05-01",
-		"2016-09-16",
-		"2016-11-20",
-		"2016-12-01",
-		"2016-12-25",
-		"2016-02-19",
-		"2016-02-24",
-		"2016-03-18",
-		"2016-04-21",
-		"2016-05-05",
-		"2016-05-08",
-		"2016-06-01",
-		"2016-09-13",
-		"2016-09-15",
-		"2016-09-27",
-		"2016-09-30",
-		"2016-10-12",
-		"2016-01-06",
-		"2016-02-14",
-		"2016-04-30",
-		"2016-05-10",
-		"2016-05-15",
-		"2016-05-23",
-		"2016-05-25",
-		"2016-08-28",
-		"2016-11-01",
-		"2016-11-02",
-		"2016-12-12",
-		"2016-12-16",
-		"2016-12-24",
-		"2016-12-31"];
-	var partidos_seleccion_mexicana = [
-		'2016-02-10',
-		'2016-03-25',
-		'2016-03-29',
-		'2016-05-28',
-		'2016-06-01',
-		'2016-06-05',
-		'2016-06-09',
-		'2016-06-13',
-		'2016-06-18',
-		'2016-09-02',
-		'2016-09-06',
-		'2016-10-08',
-		'2016-10-11',
-		'2016-11-11',
-		'2016-11-15'
-	];
-	console.log("feriado check", feriados.indexOf(check) );
+var partidos_seleccion_mexicana = [
+	'2016-02-10',
+	'2016-03-25',
+	'2016-03-29',
+	'2016-05-28',
+	'2016-06-01',
+	'2016-06-05',
+	'2016-06-09',
+	'2016-06-13',
+	'2016-06-18',
+	'2016-09-02',
+	'2016-09-06',
+	'2016-10-08',
+	'2016-10-11',
+	'2016-11-11',
+	'2016-11-15'
+];
+
+var feriados = [
+	"2016-01-01",
+	"2016-02-05",
+	"2016-03-21",
+	"2016-05-01",
+	"2016-09-16",
+	"2016-11-20",
+	"2016-12-01",
+	"2016-12-25",
+	"2016-02-19",
+	"2016-02-24",
+	"2016-03-18",
+	"2016-04-21",
+	"2016-05-05",
+	"2016-05-08",
+	"2016-06-01",
+	"2016-09-13",
+	"2016-09-15",
+	"2016-09-27",
+	"2016-09-30",
+	"2016-10-12",
+	"2016-01-06",
+	"2016-02-14",
+	"2016-04-30",
+	"2016-05-10",
+	"2016-05-15",
+	"2016-05-23",
+	"2016-05-25",
+	"2016-08-28",
+	"2016-11-01",
+	"2016-11-02",
+	"2016-12-12",
+	"2016-12-16",
+	"2016-12-24",
+	"2016-12-31"
+];
+
+var soccerDates = require('./importantDates.json');
+
+function isFeriado(check){
+	var result = "no";
 	if ( feriados.indexOf(check)> -1 ){
-		console.log("feriado!!!!");
 		result = "yes";
-	} else {
-		result = "no";
 	};
 	return result;
 }
+
+function getSeleccion(check){
+	var result = "no";
+	if ( partidos_seleccion_mexicana.indexOf(check)> -1 ){
+		result = "yes";
+	};
+	return result;
+};
+
+function getSoccerDates(dateString){
+	if ( typeof soccerDates[dateString] != "undefined" ){
+		return soccerDates[dateString].weight;
+	} else {
+		return 0;
+	}
+};
+
 
 function getMeta(metaDate, anivs){
 	var metaData = {
 		"day_num": metaDate.format('DD'),
 		"weekday": metaDate.format('dddd'),
 		"feriado": isFeriado(metaDate.format('YYYY-MM-DD') ),
+		"partido_seleccion": getSeleccion(metaDate.format('YYYY-MM-DD') ),
+		"soccer_weight": getSoccerDates(metaDate.format('YYYY-MM-DD') ),
 		"aniversarios": anivs
 	}
 	return metaData;
