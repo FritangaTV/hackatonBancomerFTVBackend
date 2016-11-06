@@ -185,6 +185,35 @@ app.get('/webhook', function (req, res) {
 	}
 });
 
+app.post('/webhook', function (req, res) {
+  var data = req.body;
+
+  if (data.object === 'page') {
+
+    data.entry.forEach(function(entry) {
+      var pageID = entry.id;
+      var timeOfEvent = entry.time;
+
+      // Iterate over each messaging event
+      entry.messaging.forEach(function(event) {
+        if (event.message) {
+          receivedMessage(event);
+        } else {
+          console.log("Webhook received unknown event: ", event);
+        }
+      });
+    });
+    res.sendStatus(200);
+  }
+});
+
+
+  
+function receivedMessage(event) {
+  // Putting a stub for now, we'll expand it in the following steps
+  console.log("Message data: ", event.message);
+}
+
 app.listen(1337, function () {
 	console.log('DATA API RUNNING');
 });
