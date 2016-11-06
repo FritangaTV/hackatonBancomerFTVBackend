@@ -174,6 +174,17 @@ app.get('/t', function(req, res){
 	});
 });
 
+
+//**FB Bot **//
+
+app.get('/webhook', function (req, res) {
+	if (req.query['hub.verify_token'] === 'plzchecktoken') {
+	  res.send(req.query['hub.challenge']);
+	} else {
+	  res.send('Error, wrong validation token');    
+	}
+});
+
 app.listen(1337, function () {
 	console.log('DATA API RUNNING');
 });
@@ -272,3 +283,4 @@ function getMeta(metaDate, anivs){
 	}
 	return metaData;
 }
+
