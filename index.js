@@ -11,6 +11,8 @@ var pool  	= mysql.createPool({
   database        : config.dbName
 });
 var request = require('request');
+var bodyParser = require('body-parser');
+var crypto = require('crypto');
 
 app.use(express.static('public'));
 app.use(bodyParser.json({ verify: verifyRequestSignature }));
