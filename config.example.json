@@ -2,5 +2,7 @@
 	"dbHost"	: "",
 	"dbUser"	: "",
 	"dbPass"	: "",
-	"dbName" 	: ""
+	"dbName" 	: "",
+	"fbToken"	: "",
+	"fbChallenge" : "" 
 }
