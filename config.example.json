@@ -4,5 +4,6 @@
 	"dbPass"	: "",
 	"dbName" 	: "",
 	"fbToken"	: "",
-	"fbChallenge" : "" 
+	"fbChallenge" : "",
+	"fbSecret" : ""
 }

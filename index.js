@@ -13,7 +13,7 @@ var pool  	= mysql.createPool({
 var request = require('request');
 
 app.use(express.static('public'));
-
+app.use(bodyParser.json({ verify: verifyRequestSignature }));
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -407,5 +407,27 @@ function getMeta(metaDate, anivs){
 		"aniversarios": anivs
 	}
 	return metaData;
+}
+
+function verifyRequestSignature(req, res, buf) {
+  var signature = req.headers["x-hub-signature"];
+
+  if (!signature) {
+    // For testing, let's log an error. In production, you should throw an 
+    // error.
+    console.error("Couldn't validate the signature.");
+  } else {
+    var elements = signature.split('=');
+    var method = elements[0];
+    var signatureHash = elements[1];
+
+    var expectedHash = crypto.createHmac('sha1', config.fbSecret)
+                        .update(buf)
+                        .digest('hex');
+
+    if (signatureHash != expectedHash) {
+      throw new Error("Couldn't validate the request signature.");
+    }
+  }
 }
 
