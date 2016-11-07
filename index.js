@@ -215,12 +215,16 @@ app.post('/webhook', function (req, res) {
 
 
 function receivedMessage(event) {
+	if (!message.text){
+		return false;
+	};
   var senderID = event.sender.id;
   var recipientID = event.recipient.id;
   var timeOfMessage = event.timestamp;
   var message = event.message;
 
   var messageId = message.mid;
+
 
   var messageText = message.text.toLowerCase();
   var messageAttachments = message.attachments;
