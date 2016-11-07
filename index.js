@@ -200,13 +200,12 @@ app.post('/webhook', function (req, res) {
       var timeOfEvent = entry.time;
 
       entry.messaging.forEach(function(event) {
-      	console.log("evento", event);
         if (event.message) {
           receivedMessage(event);
         } else if ( event.postback ){
         	sendPrediction(event);
     	} else {
-          console.log("Webhook received unknown event: ", event);
+          //console.log("Webhook received unknown event: ", event);
         }
       });
     });
@@ -254,7 +253,7 @@ function sendTextMessage(recipientId) {
 }
 
 
-function callSendAPI(messageData) {
+function callSendAPI(messageData, callback) {
   request({
     uri: 'https://graph.facebook.com/v2.6/me/messages',
     qs: { access_token: config.fbToken},
@@ -265,9 +264,9 @@ function callSendAPI(messageData) {
     if (!error && response.statusCode == 200) {
       var recipientId = body.recipient_id;
       var messageId = body.message_id;
-
-      console.log("Successfully sent generic message with id %s to recipient %s", 
-        messageId, recipientId);
+      if ( typeof callback != "undefined" ){
+      	callback(true);
+      };
     } else {
       console.error("Unable to send message.");
       console.error(response);
@@ -326,7 +325,7 @@ function sendClientList(recipientID){
 };
 
 function sendPrediction(messageEvent){
-	console.log("recibido",messageEvent);
+
 	var senderID = messageEvent.sender.id;
 	var target = messageEvent.postback.payload;
 	var todayData = FBMessageParser.parseToday(target);
