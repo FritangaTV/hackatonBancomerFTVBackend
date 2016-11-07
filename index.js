@@ -198,7 +198,7 @@ app.post('/webhook', function (req, res) {
     data.entry.forEach(function(entry) {
       var pageID = entry.id;
       var timeOfEvent = entry.time;
-
+      console.log("evento", event);
       entry.messaging.forEach(function(event) {
         if (event.message) {
           receivedMessage(event);
