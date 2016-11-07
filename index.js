@@ -228,6 +228,7 @@ function receivedMessage(event) {
   if (!message.text){
 		return false;
 	};
+	console.log(event);
   var messageText = message.text.toLowerCase();
   var messageAttachments = message.attachments;
 
