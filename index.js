@@ -252,7 +252,7 @@ function sendTextMessage(recipientId) {
       id: recipientId
     },
     message: {
-      text: "Hola soy un bot en desarrollo y no entiendo tu mensaje, peudes intentar con uno de los siguientes comandos: lista"
+      text: "Hola soy un bot en desarrollo y no entiendo tu mensaje, puedes intentar con uno de los siguientes comandos: lista"
     }
   };
 
