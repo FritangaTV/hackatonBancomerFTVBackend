@@ -347,7 +347,7 @@ function sendPrediction(messageEvent){
 			id: senderID
 		},
 		message: {
-			text: todayData.text + " Ahora unos consejos."
+			text: todayData.text
 		}
 	};
 	var tipsMessage = {

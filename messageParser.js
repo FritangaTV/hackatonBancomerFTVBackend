@@ -17,6 +17,7 @@ function parseToday(selectedClient){
 		today.image = 'https://analytics.oglabs.info/images/normal.png';
 		today.text = "Es un día regular en con ventas regulares."
 	}
+	today.text += " Monto máximo pronosticado: $" + selectedClient[0].aff_im_txn_max.toFixed() + ". Monto mínimo pronosticado: $" +  selectedClient[0].aff_im_txn_min.toFixed() + ". Ahora unos consejos:";
 	return today;
 }
 
