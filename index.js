@@ -364,9 +364,11 @@ function sendPrediction(messageEvent){
 			}
 		}
 	};
-	callSendAPI(imageMessage);
-	callSendAPI(textMessage);
-	callSendAPI(tipsMessage);
+	callSendAPI(imageMessage, function(){
+		callSendAPI(textMessage, function(){
+			callSendAPI(tipsMessage);
+		});
+	});
 }
 
 app.listen(1337, function () {
