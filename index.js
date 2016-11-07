@@ -325,6 +325,7 @@ function sendClientList(recipientId){
 };
 
 function sendPrediction(messageEvent){
+	console.log("recibido",messageEvent);
 	var senderId = messageEvent.sender.id;
 	var target = messageEvent.postback.payload;
 	var todayImage = FBMessageParser.parseToday(target);
@@ -341,6 +342,7 @@ function sendPrediction(messageEvent){
 			}
 		}
 	};
+	console.log("enviando",imageMessage);
 	callSendAPI(imageMessage);
 }
 
