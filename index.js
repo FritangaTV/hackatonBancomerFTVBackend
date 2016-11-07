@@ -13,6 +13,8 @@ var pool  	= mysql.createPool({
 var request = require('request');
 var bodyParser = require('body-parser');
 var crypto = require('crypto');
+var FBMessageParser = require('./messageParser.js');
+
 
 app.use(express.static('public'));
 app.use(bodyParser.json({ verify: verifyRequestSignature }));
@@ -197,13 +199,11 @@ app.post('/webhook', function (req, res) {
       var pageID = entry.id;
       var timeOfEvent = entry.time;
 
-      // Iterate over each messaging event
       entry.messaging.forEach(function(event) {
-      	console.log(event);
         if (event.message) {
           receivedMessage(event);
         } else if ( event.postback ){
-        	console.log("Postback called",event.postback);
+        	sendPrection(event);
     	} else {
           console.log("Webhook received unknown event: ", event);
         }
@@ -220,10 +220,6 @@ function receivedMessage(event) {
   var timeOfMessage = event.timestamp;
   var message = event.message;
 
-  console.log("Received message for user %d and page %d at %d with message:", 
-    senderID, recipientID, timeOfMessage);
-  console.log(JSON.stringify(message));
-
   var messageId = message.mid;
 
   var messageText = message.text.toLowerCase();
@@ -232,27 +228,24 @@ function receivedMessage(event) {
   if (messageText) {
 
     switch (messageText) {
-      case 'generic':
-        sendGenericMessage(senderID);
-        break;
       case 'lista':
       	sendClientList(senderID);
       	break;
       default:
-        sendTextMessage(senderID, messageText);
+        sendTextMessage(senderID);
     }
   } else if (messageAttachments) {
     sendTextMessage(senderID, "Message with attachment received");
   }
 }
 
-function sendTextMessage(recipientId, messageText) {
+function sendTextMessage(recipientId) {
   var messageData = {
     recipient: {
       id: recipientId
     },
     message: {
-      text: messageText
+      text: "Hola soy un bot en desarrollo y no entiendo tu mensaje, peudes intentar con uno de los siguientes comandos: lista"
     }
   };
 
@@ -299,7 +292,7 @@ function sendClientList(recipientId){
 							image_url: "https://analytics.oglabs.info/images/logos/juanita.jpg",
 							buttons : [{
 								type: "postback",
-								title: "Ver predicción de Fonda Juanita",
+								title: "Ver predicción",
 								payload: "juanita"
 							}]
 						},
@@ -309,7 +302,7 @@ function sendClientList(recipientId){
 							image_url: "https://analytics.oglabs.info/images/logos/goodVibes.jpg",
 							buttons : [{
 								type: "postback",
-								title: "Ver predicción de Buena Onda",
+								title: "Ver predicción",
 								payload: "buena_onda"
 							}]
 						},
@@ -319,7 +312,7 @@ function sendClientList(recipientId){
 							image_url: "https://analytics.oglabs.info/images/logos/regular.jpg",
 							buttons : [{
 								type: "postback",
-								title: "Ver predicción de El Regular",
+								title: "Ver predicción",
 								payload: "regular"
 							}]
 						}
@@ -328,55 +321,27 @@ function sendClientList(recipientId){
 			}
 		}
 	};
-
 	callSendAPI(messageData);	
 };
 
-function sendGenericMessage(recipientId) {
-  var messageData = {
-    recipient: {
-      id: recipientId
-    },
-    message: {
-      attachment: {
-        type: "template",
-        payload: {
-          template_type: "generic",
-          elements: [{
-            title: "rift",
-            subtitle: "Next-generation virtual reality",
-            item_url: "https://www.oculus.com/en-us/rift/",               
-            image_url: "http://messengerdemo.parseapp.com/img/rift.png",
-            buttons: [{
-              type: "web_url",
-              url: "https://www.oculus.com/en-us/rift/",
-              title: "Open Web URL"
-            }, {
-              type: "postback",
-              title: "Call Postback",
-              payload: "Payload for first bubble",
-            }],
-          }, {
-            title: "touch",
-            subtitle: "Your Hands, Now in VR",
-            item_url: "https://www.oculus.com/en-us/touch/",               
-            image_url: "http://messengerdemo.parseapp.com/img/touch.png",
-            buttons: [{
-              type: "web_url",
-              url: "https://www.oculus.com/en-us/touch/",
-              title: "Open Web URL"
-            }, {
-              type: "postback",
-              title: "Call Postback",
-              payload: "Payload for second bubble",
-            }]
-          }]
-        }
-      }
-    }
-  };  
-
-  callSendAPI(messageData);
+function sendPrediction(messageEvent){
+	var senderId = messageEvent.sender.id;
+	var target = messageEvent.postback.payload;
+	var todayImage = FBMessageParser.parseTips(target);
+	var imageMessage = {
+		recipientId: {
+			id: senderId
+		},
+		message: {
+			attachment: {
+				type: "image",
+				payload: {
+					url: todayImage
+				}
+			}
+		}
+	};
+	callSendAPI(imageMessage);
 }
 
 app.listen(1337, function () {
