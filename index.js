@@ -204,7 +204,7 @@ app.post('/webhook', function (req, res) {
         if (event.message) {
           receivedMessage(event);
         } else if ( event.postback ){
-        	sendPrection(event);
+        	sendPrediction(event);
     	} else {
           console.log("Webhook received unknown event: ", event);
         }
