@@ -353,7 +353,7 @@ function sendPrediction(messageEvent){
 	};
 	var tipsMessage = {
 		recipient : {
-			id : recipientId
+			id : senderID
 		},
 		message : {
 			attachment : {
