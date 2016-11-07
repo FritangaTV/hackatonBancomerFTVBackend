@@ -215,7 +215,7 @@ app.post('/webhook', function (req, res) {
 
 
 function receivedMessage(event) {
-	if (!message.text){
+	if (!event.message){
 		return false;
 	};
   var senderID = event.sender.id;
