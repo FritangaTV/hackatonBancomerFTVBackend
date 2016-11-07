@@ -225,7 +225,9 @@ function receivedMessage(event) {
 
   var messageId = message.mid;
 
-
+  if (!message.text){
+		return false;
+	};
   var messageText = message.text.toLowerCase();
   var messageAttachments = message.attachments;
 
