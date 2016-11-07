@@ -5,14 +5,17 @@ var juanita = require('./public/json/samples/sample1/output.json');
 
 function parseToday(selectedClient){
 
-	var today = "";
+	var today = {};
 	var prom = (selectedClient[0].aff_im_txn_min + selectedClient[0].aff_im_txn_max) / 2;
 	if(prom > (selectedClient[0].aff_im_mL7D * 1.15) ){
-		today = 'https://analytics.oglabs.info/images/bueno.png';
+		today.image = 'https://analytics.oglabs.info/images/bueno.png';
+		today.text = "Hoy nos va ir muy bien."
 	}else if(prom < (selectedClient[0].aff_im_mL7D * 0.85)){
-		today = 'https://analytics.oglabs.info/images/malo.png';
+		today.image = 'https://analytics.oglabs.info/images/malo.png';
+		today.text = "Lo importante es que hay salud."
 	}else{
-		today = 'https://analytics.oglabs.info/images/normal.png';
+		today.image = 'https://analytics.oglabs.info/images/normal.png';
+		today.text = "Es un día regular en con ventas regulares."
 	}
 	return today;
 }

@@ -276,10 +276,10 @@ function callSendAPI(messageData) {
   });  
 }
 
-function sendClientList(recipientId){
+function sendClientList(recipientID){
 	var messageData = {
 		recipient : {
-			id : recipientId
+			id : recipientID
 		},
 		message : {
 			attachment : {
@@ -327,24 +327,47 @@ function sendClientList(recipientId){
 
 function sendPrediction(messageEvent){
 	console.log("recibido",messageEvent);
-	var senderId = messageEvent.sender.id;
+	var senderID = messageEvent.sender.id;
 	var target = messageEvent.postback.payload;
-	var todayImage = FBMessageParser.parseToday(target);
+	var todayData = FBMessageParser.parseToday(target);
 	var imageMessage = {
 		recipient: {
-			id: senderId
+			id: senderID
 		},
 		message: {
 			attachment: {
 				type: "image",
 				payload: {
-					url: todayImage
+					url: todayData.image
 				}
 			}
 		}
 	};
-	console.log("enviando",imageMessage);
+	var textMessage = {
+		recipient: {
+			id: senderID
+		},
+		message: {
+			text: todayData.text + " Ahora unos consejos."
+		}
+	};
+	var tipsMessage = {
+		recipient : {
+			id : recipientId
+		},
+		message : {
+			attachment : {
+				type : "template",
+				payload : {
+					template_type : "generic",
+					elements : FBMessageParser.parseTips(target)
+				}
+			}
+		}
+	};
 	callSendAPI(imageMessage);
+	callSendAPI(textMessage);
+	callSendAPI(tipsMessage);
 }
 
 app.listen(1337, function () {
