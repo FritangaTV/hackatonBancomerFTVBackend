@@ -30,13 +30,15 @@ function parseTips(selectedClient){
 		tips.push({
 			title:"Día caluroso.",
 			subtitle: "Contempla alimentos refrescantes.",
-			image_url:"https://analytics.oglabs.info/images/tips/bebida_refrescante.jpeg"
+			image_url:"https://analytics.oglabs.info/images/tips/bebida_refrescante.jpeg",
+			item_url:"https://analytics.oglabs.info/images/tips/bebida_refrescante.jpeg"
 		});
 	}else if(today_weather.mean_temp < 20){ // Día frio
 		tips.push({
 			title:"Día frío.",
 			subtitle: "Contempla alimentos calientitos.",
-			image_url:"https://analytics.oglabs.info/images/tips/bebida_calientita.jpg"
+			image_url:"https://analytics.oglabs.info/images/tips/bebida_calientita.jpg",
+			item_url:"https://analytics.oglabs.info/images/tips/bebida_calientita.jpg"
 		});
 	}
 	// Viento
@@ -44,7 +46,8 @@ function parseTips(selectedClient){
 		tips.push({
 			title:"Día con viento.",
 			subtitle: "Contempla tu áreas al aire libre.",
-			image_url:"https://analytics.oglabs.info/images/tips/viento.jpeg"
+			image_url:"https://analytics.oglabs.info/images/tips/viento.jpeg",
+			item_url:"https://analytics.oglabs.info/images/tips/viento.jpeg"
 		});
 	}
 	// Quincena
@@ -52,25 +55,29 @@ function parseTips(selectedClient){
 		|| meta.day_num == "15" || meta.day_num == "16" || meta.day_num == "17" || meta.day_num == "18	"){ // Inicio de Quincena
 		tips.push({
 			title:"Inicio de quincena",
-			image_url:"https://analytics.oglabs.info/images/tips/inicio_quincena.jpg"
+			image_url:"https://analytics.oglabs.info/images/tips/inicio_quincena.jpg",
+			item_url:"https://analytics.oglabs.info/images/tips/inicio_quincena.jpg"
 		});
 	}else if(meta.day_num == "12" || meta.day_num == "13" || meta.day_num == "14"
 		|| meta.day_num == "28" || meta.day_num == "29" || meta.day_num == "30" || meta.day_num == "31"){
 		tips.push({
 			title:"Fin de quincena",
-			image_url:"https://analytics.oglabs.info/images/tips/fin_quincena.jpg"
+			image_url:"https://analytics.oglabs.info/images/tips/fin_quincena.jpg",
+			item_url:"https://analytics.oglabs.info/images/tips/fin_quincena.jpg"
 		});
 	}
 	// Semana
 	if(meta.weekday == "Saturday" || meta.weekday == "Sunday"  || meta.weekday == "Friday"){
 		tips.push({
 			title:"Fin de semana (o viernes)",
-			image_url:"https://analytics.oglabs.info/images/tips/fin_semana.jpg"
+			image_url:"https://analytics.oglabs.info/images/tips/fin_semana.jpg",
+			item_url:"https://analytics.oglabs.info/images/tips/fin_semana.jpg"
 		});
 	}else{
 		tips.push({
 			title:"Entre semana",
-			image_url:"https://analytics.oglabs.info/images/tips/entre_semana.jpg"
+			image_url:"https://analytics.oglabs.info/images/tips/entre_semana.jpg",
+			item_url:"https://analytics.oglabs.info/images/tips/entre_semana.jpg"
 		});
 	}
     
@@ -78,7 +85,8 @@ function parseTips(selectedClient){
     if(meta.feriado != "no" ){
         tips.push({
             title:"Se acerca un día feriado",
-            image_url:"https://analytics.oglabs.info/images/tips/feriado.jpg"
+            image_url:"https://analytics.oglabs.info/images/tips/feriado.jpg",
+            item_url:"https://analytics.oglabs.info/images/tips/feriado.jpg"
         });
     }
 	
@@ -86,7 +94,8 @@ function parseTips(selectedClient){
 	if(meta.partido_seleccion != "no" ){
 		tips.push({
 			title:"Hoy hay partido de Futbol importante",
-			image_url:"https://analytics.oglabs.info/images/tips/futbol.jpg"
+			image_url:"https://analytics.oglabs.info/images/tips/futbol.jpg",
+			item_url:"https://analytics.oglabs.info/images/tips/futbol.jpg"
 		});
 	}
 	
