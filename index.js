@@ -202,7 +202,9 @@ app.post('/webhook', function (req, res) {
       	console.log(event);
         if (event.message) {
           receivedMessage(event);
-        } else {
+        } else if ( event.postback ){
+        	console.log("Postback called",event.postback);
+    	} else {
           console.log("Webhook received unknown event: ", event);
         }
       });
@@ -224,18 +226,18 @@ function receivedMessage(event) {
 
   var messageId = message.mid;
 
-  var messageText = message.text;
+  var messageText = message.text.toLowerCase();
   var messageAttachments = message.attachments;
 
   if (messageText) {
 
-    // If we receive a text message, check to see if it matches a keyword
-    // and send back the example. Otherwise, just echo the text we received.
     switch (messageText) {
       case 'generic':
         sendGenericMessage(senderID);
         break;
-
+      case 'lista':
+      	sendClientList(senderID);
+      	break;
       default:
         sendTextMessage(senderID, messageText);
     }
@@ -256,6 +258,7 @@ function sendTextMessage(recipientId, messageText) {
 
   callSendAPI(messageData);
 }
+
 
 function callSendAPI(messageData) {
   request({
@@ -278,6 +281,56 @@ function callSendAPI(messageData) {
     }
   });  
 }
+
+function sendClientList(recipientId){
+	var messageData = {
+		recipient : {
+			id : recipientId
+		},
+		message : {
+			attachment : {
+				type : "template",
+				payload : {
+					template_type : "generic",
+					elements : [
+						{
+							title: "Fonda Juanita",
+							subtitle : "Primer ejemplo de datos",
+							image_url: "https://analytics.oglabs.info/images/logos/juanita.jpg",
+							buttons : [{
+								type: "postback",
+								title: "Ver predicción de Fonda Juanita",
+								payload: "juanita"
+							}]
+						},
+						{
+							title: "Buena onda",
+							subtitle : "Ejemplo de predicción positivo",
+							image_url: "https://analytics.oglabs.info/images/logos/goodVibes.jpg",
+							buttons : [{
+								type: "postback",
+								title: "Ver predicción de Buena Onda",
+								payload: "buena_onda"
+							}]
+						},
+						{
+							title: "El regular",
+							subtitle : "Ejemplo de predicción regular",
+							image_url: "https://analytics.oglabs.info/images/logos/regular.jpg",
+							buttons : [{
+								type: "postback",
+								title: "Ver predicción de El Regular",
+								payload: "regular"
+							}]
+						}
+					]
+				}
+			}
+		}
+	};
+
+	callSendAPI(messageData);	
+};
 
 function sendGenericMessage(recipientId) {
   var messageData = {
