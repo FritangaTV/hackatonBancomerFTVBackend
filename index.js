@@ -331,7 +331,7 @@ function sendPrediction(messageEvent){
 	var target = messageEvent.postback.payload;
 	var todayImage = FBMessageParser.parseToday(target);
 	var imageMessage = {
-		recipientId: {
+		recipient: {
 			id: senderId
 		},
 		message: {
